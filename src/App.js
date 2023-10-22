@@ -8,13 +8,19 @@ export default class App extends Component {
         super(props);
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            hasAccount: false,
+            name: ''
         }
     }
 
     componentDidMount() {
         const db = firebaseDatabase.getDatabase();
-        console.log(db);
+        const name = firebaseDatabase.ref(db, 'name');
+        const name1 = firebaseDatabase.onValue(name, (element) => {
+            this.setState({name: element.val()})
+        });
+        console.log(name);
     }
 
     handleChange = ({target: {value, id}}) => {
@@ -29,18 +35,31 @@ export default class App extends Component {
         // firebaseAuth.createUserWithEmailAndPassword(auth, email, password)
         //     .catch(error => console.log(error));
         firebaseAuth.signInWithEmailAndPassword(auth, email, password)
-            .catch()
+            .then(response => this.setState({hasAccount: true}))
+            .catch(error => console.log(error))
     }
 
     render() {
-        console.log(this.state);
+        const {hasAccount, name} = this.state;
+        console.log(name);
         return (
             <div>
-                <div className="login_block">
-                    <input type="text" placeholder="email" id="email" onChange={this.handleChange}/>
-                    <input type="password" id="password" placeholder="password" onChange={this.handleChange}/>
-                    <input type="submit" onClick={this.createAccount}/>
-                </div>
+                {
+                    hasAccount ?
+                        (
+                            <div>hello</div>
+                        )
+                        :
+                        (
+                            <div className="login_block">
+                                <input type="text" placeholder="email" id="email" onChange={this.handleChange}/>
+                                <input type="password" id="password" placeholder="password"
+                                       onChange={this.handleChange}/>
+                                <input type="submit" onClick={this.createAccount}/>
+                            </div>
+                        )
+
+                }
             </div>
         )
     }
